@@ -1,0 +1,113 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: SICXEAssembler - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x409 /fo"Release/SICXEAssembler.res" /d "NDEBUG" "C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssembler.rc"" 
+Creating temporary file "C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP374.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Release/SICXEAssembler.pch" /Yu"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\DlgView.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\MainFrm.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssembler.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssemblerDoc.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssemblerView.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\Splash.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP374.tmp" 
+Creating temporary file "C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP375.tmp" with contents
+[
+/nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Release/SICXEAssembler.pch" /Yc"stdafx.h" /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP375.tmp" 
+Creating temporary file "C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP376.tmp" with contents
+[
+/nologo /subsystem:windows /incremental:no /pdb:"Release/SICXEAssembler.pdb" /machine:I386 /out:"Release/SICXEAssembler.exe" 
+".\Release\DlgView.obj"
+".\Release\MainFrm.obj"
+".\Release\SICXEAssembler.obj"
+".\Release\SICXEAssemblerDoc.obj"
+".\Release\SICXEAssemblerView.obj"
+".\Release\Splash.obj"
+".\Release\StdAfx.obj"
+".\Release\SICXEAssembler.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP376.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+DlgView.cpp
+MainFrm.cpp
+SICXEAssembler.cpp
+SICXEAssemblerDoc.cpp
+SICXEAssemblerView.cpp
+Splash.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+SICXEAssembler.exe - 0 error(s), 0 warning(s)
+<h3>
+--------------------Configuration: SICXEAssembler - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating command line "rc.exe /l 0x409 /fo"Debug/SICXEAssembler.res" /d "_DEBUG" /d "_AFXDLL" "C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssembler.rc"" 
+Creating temporary file "C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP378.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fp"Debug/SICXEAssembler.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\DlgView.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\MainFrm.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssembler.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssemblerDoc.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\SICXEAssemblerView.cpp"
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\Splash.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP378.tmp" 
+Creating temporary file "C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP379.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_AFXDLL" /Fp"Debug/SICXEAssembler.pch" /Yc"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\Documents and Settings\Rickyang\My Documents\My Source Code\SICXEAssembler\StdAfx.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP379.tmp" 
+Creating temporary file "C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP37A.tmp" with contents
+[
+/nologo /subsystem:windows /incremental:yes /pdb:"Debug/SICXEAssembler.pdb" /debug /machine:I386 /out:"Debug/SICXEAssembler.exe" /pdbtype:sept 
+".\Debug\DlgView.obj"
+".\Debug\MainFrm.obj"
+".\Debug\SICXEAssembler.obj"
+".\Debug\SICXEAssemblerDoc.obj"
+".\Debug\SICXEAssemblerView.obj"
+".\Debug\Splash.obj"
+".\Debug\StdAfx.obj"
+".\Debug\SICXEAssembler.res"
+]
+Creating command line "link.exe @C:\DOCUME~1\Rickyang\LOCALS~1\Temp\RSP37A.tmp"
+<h3>Output Window</h3>
+Compiling resources...
+Compiling...
+StdAfx.cpp
+Compiling...
+DlgView.cpp
+MainFrm.cpp
+SICXEAssembler.cpp
+SICXEAssemblerDoc.cpp
+SICXEAssemblerView.cpp
+Splash.cpp
+Generating Code...
+Linking...
+
+
+
+<h3>Results</h3>
+SICXEAssembler.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

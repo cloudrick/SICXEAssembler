@@ -1,0 +1,625 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>~\Desktop\sicxeisa.h.html</title>
+  <meta name="Generator" content="Vim/6.2">
+</head>
+<body bgcolor="#ffffff" text="#000000">
+<pre style="font-family: fixedsys;"><font color="#0000ff">/////////////////////////</font>
+<font color="#0000ff">//   SIC/XE Pass One   //</font>
+<font color="#0000ff">/////////////////////////</font>
+
+<font color="#0000ff">// return true if successlly , or return false</font>
+<font color="#2e8b57"><b>bool</b></font> SICXEPass1(<br>                string* sStr,         <font
+ color="#0000ff">// the source code</font>
+                <font
+ color="#2e8b57"><b>int</b></font> TotalLines ,      <font
+ color="#0000ff">// length of source code ( total lines )</font>
+                string&amp; msg           <font
+ color="#0000ff">// record the error message</font>
+                )
+{
+        string lable , op , addr ;
+        <font
+ color="#2e8b57"><b>unsigned</b></font> <font color="#2e8b57"><b>long</b></font> <font
+ color="#2e8b57"><b>int</b></font> LOCCTR ;<br>        <font
+ color="#2e8b57"><b>bool</b></font> UseFormat4 ;<br><br>        <font
+ color="#2e8b57"><b>int</b></font> i = <font color="#ff00ff">0</font> ;<br><br>        <font
+ color="#804040"><b>while</b></font>( sStr[i].length() ==<font
+ color="#ff00ff">0</font> ) i++ ;<br><br>        <font color="#0000ff">// parse first line of source code to lable,op,addr</font>
+        SourceCodeParse(sStr[i],lable,op,addr) ;
+
+        <font
+ color="#0000ff">/*</font><font color="#0000ff"> --------------------- if find START --------------------- </font><font
+ color="#0000ff">*/</font>
+        <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"START"</font> )<br>        {<br>                <font
+ color="#0000ff">// save the program name</font>
+                PROGRAM_NAME = lable ;
+
+                <font
+ color="#0000ff">// check if start address is illegal</font>
+                <font
+ color="#804040"><b>if</b></font>( HexStringToInt(addr,LOCCTR) == <font
+ color="#ff00ff">false</font> )<br>                {<br>                        msg = <font
+ color="#ff00ff">"Start Address error!!</font><font color="#6a5acd">\n</font><font
+ color="#ff00ff">"</font> ;<br>                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                }<br><br>                <font
+ color="#0000ff">// parse next line of source code</font>
+                SourceCodeParse(sStr[++i],lable,op,addr) ;
+        }
+        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------------------- if not find START ------------------- </font><font
+ color="#0000ff">*/</font>
+        <font color="#804040"><b>else</b></font>
+        {
+                <font
+ color="#0000ff">// set start address as 0x0000 and save it</font>
+                LOCCTR = <font
+ color="#ff00ff">0x0</font> ;<br>        }<br>        <font
+ color="#0000ff">/*</font><font color="#0000ff"> --------------------------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+        <font color="#0000ff">/*</font><font
+ color="#0000ff">  save data of start address </font><font
+ color="#0000ff">*/</font>
+        START_ADDRESS = LOCCTR ;
+        LOC[<font
+ color="#ff00ff">0</font>] = START_ADDRESS ;<br>        haveLoc[<font
+ color="#ff00ff">0</font>] = <font color="#ff00ff">true</font> ;<br>        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ----------------------------</font><font
+ color="#0000ff">*/</font>
+
+
+
+
+        <font color="#0000ff">/*</font><font
+ color="#0000ff"> -------------- Loop of parsing each source code ----------------</font><font
+ color="#0000ff">*/</font>
+        <font color="#804040"><b>while</b></font>( op != <font
+ color="#ff00ff">"END"</font> &amp;&amp; i&lt;TotalLines ) <font
+ color="#0000ff">// end the loop if OPCODE is 'END'</font>
+        {
+
+                UseFormat4 = <font
+ color="#ff00ff">false</font> ;  <font color="#0000ff">// we assume the instruction is format 3</font>
+
+
+                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ----- check the line is not comment and blank line ----- </font><font
+ color="#0000ff">*/</font>
+                <font color="#804040"><b>if</b></font>( op[<font
+ color="#ff00ff">0</font>]!=<font color="#ff00ff">'.'</font> &amp;&amp; lable[<font
+ color="#ff00ff">0</font>]!=<font color="#ff00ff">'.'</font> &amp;&amp; addr[<font
+ color="#ff00ff">0</font>]!=<font color="#ff00ff">'.'</font> &amp;&amp; op != <font
+ color="#ff00ff">""</font>)<br>                {<br><br>                        <font
+ color="#0000ff">// save the current location address</font>
+                        LOC[i] = LOCCTR ;
+
+                        <font
+ color="#0000ff">// set current LOC is legal</font>
+                        haveLoc[i] = <font
+ color="#ff00ff">true</font> ;<br><br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---- check there is a LABLE in the line ---- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>if</b></font>( lable.length()&gt;<font
+ color="#ff00ff">0</font> )<br>                        {<br>                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------ if find the symbol ------ </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>if</b></font>( SearchFromSymTab(lable) &gt;=<font
+ color="#ff00ff">0</font> )<br>                                {<br>                                        msg = <font
+ color="#ff00ff">"redefine LABLE "</font> + lable ;<br>                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                }<br>                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---- if not find the symbol ---- </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>else</b></font>
+                                {
+                                        InsertToSymTab(lable,LOCCTR) ;
+                                }
+                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------------------------------- </font><font
+ color="#0000ff">*/</font>
+                        }
+                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+
+                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---- check the OPCODE if have others mark ---- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>if</b></font>( op[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'+'</font> || addr[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'@'</font> || addr[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'#'</font> )<br>                        {<br>                                <font
+ color="#0000ff">// check if use format 4</font>
+                                <font
+ color="#804040"><b>if</b></font>(op[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'+'</font>)<br>                                {<br>                                        UseFormat4 = <font
+ color="#ff00ff">true</font> ;<br>                                }<br><br>                                op = string(op.begin()+<font
+ color="#ff00ff">1</font>,op.end()) ;<br><br>                                <font
+ color="#0000ff">// set the machine is SIC/XE</font>
+                                USE_SICXE  = <font
+ color="#ff00ff">true</font> ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ----------------------------------------------- </font><font
+ color="#0000ff">*/</font><br><br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------- check if the OPERAND is literal ------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>if</b></font>(addr[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'='</font> &amp;&amp; SearchFromLiteral(string(addr.begin()+<font
+ color="#ff00ff">1</font>,addr.end()))&lt;<font color="#ff00ff">0</font> )<br>                        {<br>                                <font
+ color="#0000ff">// to save the literal</font>
+                                USE_SICXE = <font
+ color="#ff00ff">true</font> ;<br>                                literal[LITERAL_LENGTH].value = addr ;<br>                                literal[LITERAL_LENGTH].created = <font
+ color="#ff00ff">false</font> ;<br>                                LITERAL_LENGTH++ ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ----------------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+<br>                        <font color="#0000ff">/*</font><font
+ color="#0000ff"> ---------- if OPCODE is an instruction -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#2e8b57"><b>int</b></font> j = SearchFromISA(op) ;<br>                        <font
+ color="#804040"><b>if</b></font>( j&gt;=<font color="#ff00ff">0</font> )<br>                        {<br>                                <font
+ color="#0000ff">// if the instruction is format 1</font>
+                                <font
+ color="#804040"><b>if</b></font>( ISA[j].Format == <font
+ color="#ff00ff">"1"</font> )<br>                                        LOCCTR += <font
+ color="#ff00ff">1</font> ;<br>                                <font
+ color="#0000ff">// if the instruction is format 2</font>
+                                <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( ISA[j].Format == <font
+ color="#ff00ff">"2"</font> )<br>                                        LOCCTR += <font
+ color="#ff00ff">2</font> ;<br>                                <font
+ color="#0000ff">// if the instruction is format 3 or 4</font>
+                                <font
+ color="#804040"><b>else</b></font>
+                                {
+                                        <font
+ color="#804040"><b>if</b></font>(UseFormat4==<font color="#ff00ff">true</font>)<br>                                                LOCCTR += <font
+ color="#ff00ff">4</font> ;<br>                                        <font
+ color="#804040"><b>else</b></font>
+                                                LOCCTR += <font
+ color="#ff00ff">3</font> ;<br>                                }<br><br>                                <font
+ color="#0000ff">// check if indexed relation</font>
+                                <font
+ color="#804040"><b>if</b></font>( ISA[j].Note.find(<font
+ color="#ff00ff">"X"</font>) != string::npos )<br>                                        USE_SICXE = <font
+ color="#ff00ff">true</font> ;<br><br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is 'WORD' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"WORD"</font> )<br>                        {<br>                                LOCCTR += <font
+ color="#ff00ff">3</font> ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is 'RESW' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"RESW"</font> )<br>                        {<br>                                <font
+ color="#2e8b57"><b>long</b></font> <font color="#2e8b57"><b>int</b></font> tmp ;<br>                                <font
+ color="#804040"><b>if</b></font>( DecStringToInt(addr,tmp)==<font
+ color="#ff00ff">false</font> )<br>                                {<br>                                        msg = addr + <font
+ color="#ff00ff">" is not a integer!"</font> ;<br>                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                }<br>                                <font
+ color="#804040"><b>else</b></font>
+                                        LOCCTR +=  <font
+ color="#ff00ff">3</font>*tmp ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is 'RESB' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"RESB"</font> )<br>                        {<br>                                <font
+ color="#2e8b57"><b>long</b></font> <font color="#2e8b57"><b>int</b></font> tmp ;<br>                                <font
+ color="#804040"><b>if</b></font>( DecStringToInt(addr,tmp)==<font
+ color="#ff00ff">false</font> )<br>                                {<br>                                        msg = addr + <font
+ color="#ff00ff">" is not a integer!"</font> ;<br>                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                }<br>                                <font
+ color="#804040"><b>else</b></font>
+                                        LOCCTR += tmp ;
+                        }
+                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is 'BYTE' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"BYTE"</font> )<br>                        {<br>                                <font
+ color="#804040"><b>if</b></font>( GetTotalBytes(addr)&lt;<font
+ color="#ff00ff">0</font>)<br>                                {<br>                                        msg = addr + <font
+ color="#ff00ff">" is not a current value!"</font> ;<br>                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                }<br>                                LOCCTR += GetTotalBytes(addr) ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is 'LTORG' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"LTORG"</font> )<br>                        {<br>                                <font
+ color="#0000ff">// to create a literal pool</font>
+                                <font
+ color="#804040"><b>for</b></font>( <font color="#2e8b57"><b>int</b></font> i=<font
+ color="#ff00ff">0</font> ; i&lt;LITERAL_LENGTH ; i++)<br>                                {<br>                                        <font
+ color="#804040"><b>if</b></font>( !literal[i].created )<br>                                        {<br>                                                literal[i].address = LOCCTR ;<br>                                                LOCCTR += GetTotalBytes(literal[i].value) ;<br>                                                literal[i].created = <font
+ color="#ff00ff">true</font> ;<br>                                        }<br>                                }<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is  'EQU' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"EQU"</font> )<br>                        {<br><br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is  'ORG' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"ORG"</font> )<br>                        {<br><br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is 'USE' -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"USE"</font> )<br>                        {<br><br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- if OPCODE is others -------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font>
+                        {
+                                msg = <font
+ color="#ff00ff">"Error Instruction "</font> + op ;<br>                                <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------------------------------------------</font><font
+ color="#0000ff">*/</font>
+                }
+                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------------------------------------------------------</font><font
+ color="#0000ff">*/</font>
+
+                <font color="#0000ff">//   parse the next line of source code</font>
+                SourceCodeParse(sStr[++i],lable,op,addr) ;
+        }
+
+        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------------------------- end of loop ----------------------- </font><font
+ color="#0000ff">*/</font>
+
+
+        <font color="#0000ff">/*</font><font
+ color="#0000ff"> ----------- To Create Literal Pool in the end --------------- </font><font
+ color="#0000ff">*/</font>
+        <font color="#804040"><b>for</b></font>( <font
+ color="#2e8b57"><b>int</b></font> j=<font color="#ff00ff">0</font> ; j&lt;LITERAL_LENGTH ; j++)<br>        {<br>                <font
+ color="#0000ff">// check if allready created</font>
+                <font
+ color="#804040"><b>if</b></font>( !literal[j].created )<br>                {<br>                        literal[j].address = LOCCTR ;<br>                        LOCCTR += GetTotalBytes(literal[j].value) ;<br>                        literal[j].created = <font
+ color="#ff00ff">true</font> ;<br>                }<br>        }<br>        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------------------------------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+        <font color="#0000ff">// save the program length</font>
+        PROGRAM_LENGH = LOCCTR - START_ADDRESS ;
+
+        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">true</font> ;<br>}<br>¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;">¡@</pre>
+<pre style="font-family: fixedsys;"><br><br><font
+ color="#0000ff">/////////////////////////</font>
+<font color="#0000ff">//   SIC/XE Pass Two   //</font>
+<font color="#0000ff">/////////////////////////</font>
+
+<font color="#0000ff">// return true if successlly , or return false</font>
+<font color="#2e8b57"><b>bool</b></font> SICXEPass2(<br>                string* sStr,         <font
+ color="#0000ff">// the source code</font>
+                <font
+ color="#2e8b57"><b>int</b></font> TotalLines ,      <font
+ color="#0000ff">// length of source code ( total lines )</font>
+                string&amp; msg           <font
+ color="#0000ff">// record the error message</font>
+               )
+{
+        string lable , op , addr ;
+        <font
+ color="#2e8b57"><b>int</b></font> i = <font color="#ff00ff">0</font> ;<br><br>        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------- To ignone the START line --------- </font><font
+ color="#0000ff">*/</font>
+        <font color="#804040"><b>if</b></font>( TotalLines!=<font
+ color="#ff00ff">0</font> )<br>                SourceCodeParse(sStr[<font
+ color="#ff00ff">0</font>],lable,op,addr) ;<br><br>        <font
+ color="#804040"><b>if</b></font>( op == <font color="#ff00ff">"START"</font> )<br>        {<br>                <font
+ color="#804040"><b>if</b></font>( i&lt;TotalLines )<br>                        SourceCodeParse(sStr[++i],lable,op,addr) ;<br>        }<br>        <font
+ color="#0000ff">/*</font><font color="#0000ff"> --------------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+
+        <font color="#0000ff">/*</font><font
+ color="#0000ff"> --------------- A loop to parse source code ------------------ </font><font
+ color="#0000ff">*/</font>
+        <font color="#804040"><b>while</b></font>( op != <font
+ color="#ff00ff">"END"</font> &amp;&amp; i&lt;TotalLines ) <font
+ color="#0000ff">// end if OPCODE is 'END'</font>
+        {
+                <font
+ color="#0000ff">/*</font><font color="#0000ff"> --------------------to check if use SICXE ---------------- </font><font
+ color="#0000ff">*/</font>
+                <font color="#804040"><b>if</b></font>( USE_SICXE )<br>                {<br>                        <font
+ color="#2e8b57"><b>bool</b></font> UseFormat4 = <font color="#ff00ff">false</font> ;<br><br>                        <font
+ color="#0000ff">// to check if use format 4</font>
+                        <font
+ color="#804040"><b>if</b></font>( op[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'+'</font> )<br>                        {<br>                                USE_SICXE = <font
+ color="#ff00ff">true</font> ;<br>                                UseFormat4 = <font
+ color="#ff00ff">true</font> ;<br>                                op = string(op.begin()+<font
+ color="#ff00ff">1</font>,op.end()) ;<br>                        }<br><br>                        <font
+ color="#2e8b57"><b>int</b></font> findfromisa = SearchFromISA(op) ;<br><br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is an instruction ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>if</b></font>(findfromisa&gt;=<font color="#ff00ff">0</font>)<br>                        {<br>                                string tmp_op,tmp_operand ;<br><br>                                tmp_op = IntToHexString(ISA[findfromisa].Opcode) ;<br>                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ----- if instruction is format 1 ----- </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>if</b></font>(ISA[findfromisa].Format == <font
+ color="#ff00ff">"1"</font> )<br>                                {<br>                                        <font
+ color="#0000ff">// save the object code</font>
+                                        OBJCodeALL[i] = tmp_op ;
+                                }
+                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ----- if instruction is format 2 ----- </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>(ISA[findfromisa].Format == <font
+ color="#ff00ff">"2"</font> )<br>                                {<br>                                        <font
+ color="#2e8b57"><b>int</b></font> k ;<br>                                        k = SearchFromReg( string(addr.begin(),addr.begin()+<font
+ color="#ff00ff">1</font>));<br>                                        <font
+ color="#804040"><b>if</b></font>( k&lt;<font color="#ff00ff">0</font> )<br>                                        {<br>                                                msg = <font
+ color="#ff00ff">"register error! on "</font> + sStr[i] ;<br>                                                <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                        }<br>                                        tmp_operand = IntToDecString(k) ;<br>                                        <font
+ color="#804040"><b>if</b></font>( addr.length() &gt;=<font
+ color="#ff00ff">3</font> )<br>                                        {<br>                                                k = SearchFromReg( string(addr.begin()+<font
+ color="#ff00ff">2</font>,addr.begin()+<font color="#ff00ff">3</font>));<br>                                                <font
+ color="#804040"><b>if</b></font>( k&lt;<font color="#ff00ff">0</font> )<br>                                                {<br>                                                        tmp_operand += addr[<font
+ color="#ff00ff">2</font>] ;<br>                                                }<br>                                                <font
+ color="#804040"><b>else</b></font>
+                                                {
+                                                        tmp_operand += IntToDecString(k) ;
+                                                }
+                                        }
+                                        <font
+ color="#804040"><b>else</b></font>
+                                        {
+                                                tmp_operand += <font
+ color="#ff00ff">"0"</font> ;<br>                                        }<br><br>                                        <font
+ color="#0000ff">// save the object code</font>
+                                        OBJCodeALL[i] = tmp_op + tmp_operand ;
+                                }
+                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---- if instruction is format 3 or 4 ---- </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>else</b></font>
+                                {
+                                        <font
+ color="#2e8b57"><b>int</b></font> flag = <font color="#ff00ff">0x32</font> ;<br><br>                                        <font
+ color="#0000ff">// check if immediate</font>
+                                        <font
+ color="#804040"><b>if</b></font>( addr[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'#'</font> )<br>                                        {<br>                                                flag &amp;= <font
+ color="#ff00ff">0x1F</font> ;<br>                                                addr = string( addr.begin()+<font
+ color="#ff00ff">1</font>, addr.end()) ;<br>                                        }<br>                                        <font
+ color="#0000ff">// check if indirect</font>
+                                        <font
+ color="#804040"><b>if</b></font>( addr[<font color="#ff00ff">0</font>] == <font
+ color="#ff00ff">'@'</font> )<br>                                        {<br>                                                flag &amp;= <font
+ color="#ff00ff">0x2F</font> ;<br>                                                addr = string( addr.begin()+<font
+ color="#ff00ff">1</font>, addr.end()) ;<br>                                        }<br>                                        <font
+ color="#0000ff">// check if indexed relation</font>
+                                        <font
+ color="#804040"><b>if</b></font>( addr.find(<font color="#ff00ff">",X"</font>) != string::npos )<br>                                        {<br>                                                flag &amp;= <font
+ color="#ff00ff">0x08</font> ;<br>                                                addr = string( addr.begin() , addr.end()-<font
+ color="#ff00ff">2</font> ) ;<br>                                        }<br><br>                                        <font
+ color="#2e8b57"><b>int</b></font> j = SearchFromSymTab(addr) ;<br><br>                                        <font
+ color="#2e8b57"><b>int</b></font> k = SearchFromLiteral(addr) ;<br><br>                                        <font
+ color="#0000ff">// if OPERAND is a symbol</font>
+                                        <font
+ color="#804040"><b>if</b></font>( j&gt;=<font color="#ff00ff">0</font> )<br>                                        {<br>                                                <font
+ color="#2e8b57"><b>int</b></font> disp ;<br><br>                                                <font
+ color="#804040"><b>if</b></font>( UseFormat4 )<br>                                                {<br>                                                        disp = symtab[j].data ;<br>                                                }<br>                                                <font
+ color="#804040"><b>else</b></font>
+                                                {
+                                                        disp = symtab[j].data - GetNextLOC(i) ;
+
+                                                        <font
+ color="#804040"><b>if</b></font>( disp&gt;<font color="#ff00ff">2047</font> || disp &lt; -<font
+ color="#ff00ff">2048</font> )<br>                                                        {<br>                                                                disp = symtab[j].data - BASE ;<br><br>                                                                <font
+ color="#804040"><b>if</b></font>( disp &gt; <font color="#ff00ff">4095</font> || disp &lt; <font
+ color="#ff00ff">0</font>)<br>                                                                {<br>                                                                        msg = <font
+ color="#ff00ff">"BASE Relation error!"</font> ;<br>                                                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                                                }<br><br>                                                                flag &amp;= <font
+ color="#ff00ff">61</font> ;<br>                                                                flag |= <font
+ color="#ff00ff">4</font> ;<br>                                                        }<br>                                                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( disp &lt; <font
+ color="#ff00ff">0</font> )<br>                                                        {<br>                                                                disp &amp;= <font
+ color="#ff00ff">0x00000FFF</font> ;<br>                                                        }<br>                                                }<br>                                                tmp_operand = IntToHexString(disp) ;<br>                                        }<br>                                        <font
+ color="#0000ff">// if OPERAND is a literal</font>
+                                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( k&gt;=<font
+ color="#ff00ff">0</font> )<br>                                        {<br>                                                <font
+ color="#2e8b57"><b>int</b></font> disp ;<br><br>                                                <font
+ color="#804040"><b>if</b></font>( UseFormat4 )<br>                                                {<br>                                                        disp = literal[k].address ;<br>                                                }<br>                                                <font
+ color="#804040"><b>else</b></font>
+                                                {
+                                                        disp = literal[k].address - GetNextLOC(i) ;
+                                                        <font
+ color="#0000ff">// if use BASE relation</font>
+                                                        <font
+ color="#804040"><b>if</b></font>( disp&gt;<font color="#ff00ff">2047</font> || disp &lt; -<font
+ color="#ff00ff">2048</font> )<br>                                                        {<br>                                                                disp = literal[k].address - BASE ;<br><br>                                                                <font
+ color="#804040"><b>if</b></font>( disp &gt; <font color="#ff00ff">4095</font> || disp &lt; <font
+ color="#ff00ff">0</font>)<br>                                                                {<br>                                                                        msg = <font
+ color="#ff00ff">"BASE Register error!2"</font> ;<br>                                                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                                                }<br><br>                                                                flag &amp;= <font
+ color="#ff00ff">61</font> ;<br>                                                                flag |= <font
+ color="#ff00ff">4</font> ;<br>                                                        }<br>                                                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( disp &lt; <font
+ color="#ff00ff">0</font> )<br>                                                        {<br>                                                                disp &amp;= <font
+ color="#ff00ff">0x00000FFF</font> ;<br>                                                        }<br>                                                }<br>                                                tmp_operand = IntToHexString(disp) ;<br>                                        }<br>                                        <font
+ color="#0000ff">// if OPERAND is a value</font>
+                                        <font
+ color="#804040"><b>else</b></font>
+                                        {
+                                                <font
+ color="#2e8b57"><b>long</b></font> <font color="#2e8b57"><b>int</b></font> v ;<br>                                                flag &amp;= <font
+ color="#ff00ff">57</font> ;<br>                                                <font
+ color="#804040"><b>if</b></font>( !DecStringToInt(addr,v) )<br>                                                {<br>                                                        msg = <font
+ color="#ff00ff">"operand error"</font> ;<br>                                                        <font
+ color="#804040"><b>return</b></font> <font color="#ff00ff">false</font> ;<br>                                                }<br>                                                tmp_operand = IntToHexString(v) ;<br>                                        }<br><br>                                        <font
+ color="#0000ff">// if use format 4</font>
+                                        <font
+ color="#804040"><b>if</b></font>( UseFormat4 )<br>                                        {<br>                                                tmp_operand = FillChar(tmp_operand,<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">5</font>,<font
+ color="#ff00ff">0</font>) ;<br>                                                flag &amp;= <font
+ color="#ff00ff">57</font> ;<br>                                                flag |= <font
+ color="#ff00ff">1</font>  ;<br>                                        }<br>                                        <font
+ color="#0000ff">// if use format 3</font>
+                                        <font
+ color="#804040"><b>else</b></font>
+                                        {
+                                                tmp_operand = FillChar(tmp_operand,<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">3</font>,<font
+ color="#ff00ff">0</font>) ;<br>                                        }<br><br>                                        tmp_operand = IntToHexString(flag) + tmp_operand ;<br>                                        <font
+ color="#2e8b57"><b>unsigned</b></font> <font color="#2e8b57"><b>long</b></font> <font
+ color="#2e8b57"><b>int</b></font> a,b ;<br>                                        HexStringToInt(tmp_op,a) ;<br>                                        HexStringToInt(tmp_operand,b) ;<br><br>                                        <font
+ color="#804040"><b>if</b></font>( UseFormat4 )<br>                                        {<br>                                                a &lt;&lt;= <font
+ color="#ff00ff">24</font> ;<br><br>                                                <font
+ color="#0000ff">// save the object code</font>
+                                                OBJCodeALL[i] = FillChar(IntToHexString(a+b),<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">8</font>,<font
+ color="#ff00ff">0</font>) ;<br>                                        }<br>                                        <font
+ color="#804040"><b>else</b></font>
+                                        {
+                                                a &lt;&lt;= <font
+ color="#ff00ff">16</font> ;<br>                                                <font
+ color="#0000ff">// save the object code</font>
+                                                OBJCodeALL[i] = FillChar(IntToHexString(a+b),<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">6</font>,<font
+ color="#ff00ff">0</font>) ;<br>                                        }<br>                                }<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is 'WORD' ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"WORD"</font> )<br>                        {<br>                                <font
+ color="#2e8b57"><b>long</b></font> <font color="#2e8b57"><b>int</b></font> v ;<br>                                DecStringToInt(addr,v) ;<br>                                OBJCodeALL[i] = FillChar(IntToHexString(v),<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">6</font>,<font
+ color="#ff00ff">0</font>) ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is 'BYTE' ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"BYTE"</font> )<br>                        {<br>                                OBJCodeALL[i] = GetConstString(addr) ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is 'BASE' ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"BASE"</font> )<br>                        {<br>                                <font
+ color="#0000ff">// save the BASE value</font>
+                                <font
+ color="#2e8b57"><b>int</b></font> j = SearchFromSymTab(addr) ;<br>                                BASE = symtab[j].data ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is others ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font>
+                        {
+
+                        }
+                }
+
+                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------------------------ if use SIC -------------------- </font><font
+ color="#0000ff">*/</font>
+                <font color="#804040"><b>else</b></font>
+                {
+                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is an instruction ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#2e8b57"><b>int</b></font> findfromisa = SearchFromISA(op) ;<br>                        <font
+ color="#804040"><b>if</b></font>( findfromisa &gt;= <font
+ color="#ff00ff">0</font> )<br>                        {<br>                                string tmp_op , tmp_operand ;<br><br>                                tmp_op = FillChar(IntToHexString(ISA[findfromisa].Opcode),<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">2</font>,<font
+ color="#ff00ff">0</font>) ;<br><br>                                <font
+ color="#2e8b57"><b>bool</b></font> indexed = <font color="#ff00ff">false</font> ;<br><br>                                <font
+ color="#0000ff">// to check if indexed relation</font>
+                                <font
+ color="#804040"><b>if</b></font>( addr.find(<font color="#ff00ff">",X"</font>) != string::npos )<br>                                {<br>                                        indexed = <font
+ color="#ff00ff">true</font> ;<br>                                        addr = string( addr.begin() , addr.end()-<font
+ color="#ff00ff">2</font> ) ;<br>                                }<br><br>                                <font
+ color="#2e8b57"><b>int</b></font> k = SearchFromSymTab(addr) ;<br><br>                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------ if OPERAND is a symbol ------- </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>if</b></font>(k&gt;=<font color="#ff00ff">0</font>)<br>                                {<br>                                        <font
+ color="#2e8b57"><b>long</b></font> <font color="#2e8b57"><b>int</b></font> a = symtab[k].data ;<br>                                        <font
+ color="#804040"><b>if</b></font>( indexed )<br>                                                a &amp;= <font
+ color="#ff00ff">0x8000</font> ;<br>                                        tmp_operand = FillChar(IntToHexString(a),<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">4</font>,<font
+ color="#ff00ff">0</font>) ;<br>                                }<br>                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------ if OPERAND is not a symbol ------ </font><font
+ color="#0000ff">*/</font>
+                                <font
+ color="#804040"><b>else</b></font>
+                                {
+                                        tmp_operand = <font
+ color="#ff00ff">"0000"</font> ;<br>                                }<br>                                <font
+ color="#0000ff">/*</font><font color="#0000ff"> ---------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+                                <font
+ color="#0000ff">// save the object code</font>
+                                OBJCodeALL[i] = tmp_op + tmp_operand ;
+                        }
+                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is 'WORD' ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"WORD"</font> )<br>                        {<br>                                <font
+ color="#2e8b57"><b>long</b></font> <font color="#2e8b57"><b>int</b></font> v ;<br>                                DecStringToInt(addr,v) ;<br>                                OBJCodeALL[i] = FillChar(IntToHexString(v),<font
+ color="#ff00ff">'0'</font>,<font color="#ff00ff">6</font>,<font
+ color="#ff00ff">0</font>) ;<br>                        }<br>                        <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------- if OPCODE is 'BYTE' ---------- </font><font
+ color="#0000ff">*/</font>
+                        <font
+ color="#804040"><b>else</b></font> <font color="#804040"><b>if</b></font>( op == <font
+ color="#ff00ff">"BYTE"</font> )<br>                        {<br>                                OBJCodeALL[i] = GetConstString(addr) ;<br>                        }<br>                }<br>                <font
+ color="#0000ff">/*</font><font color="#0000ff"> -------------------------------------------------------- </font><font
+ color="#0000ff">*/</font>
+
+
+                <font color="#0000ff">// parse the nect line of source code</font>
+                <font
+ color="#804040"><b>if</b></font>( i&lt;TotalLines-<font color="#ff00ff">1</font>)<br>                        SourceCodeParse(sStr[++i],lable,op,addr) ;<br>        }<br>        <font
+ color="#0000ff">/*</font><font color="#0000ff"> ------------------------- end of the loop ----------------------- </font><font
+ color="#0000ff">*/</font>
+
+        <font color="#804040"><b>return</b></font> <font
+ color="#ff00ff">true</font> ;<br>}<br></pre>
+</body>
+</html>
